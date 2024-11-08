@@ -1,4 +1,4 @@
-from sqlalchemy.dialects.postgresql import UUID
+# from sqlalchemy.dialects.mysql import UUID
 import uuid
 from database import db
 
@@ -6,10 +6,10 @@ from database import db
 links = db.Table(
     "link",
     db.Column(
-        "group_id", UUID(as_uuid=True), db.ForeignKey("groups.id"), primary_key=True
+        "group_id", db.String(33), db.ForeignKey("groups.id"), primary_key=True
     ),
     db.Column(
-        "user_id", UUID(as_uuid=True), db.ForeignKey("users.id"), primary_key=True
+        "user_id", db.String(33), db.ForeignKey("users.id"), primary_key=True
     ),
 )
 
@@ -17,12 +17,12 @@ links = db.Table(
 class User(db.Model):
     __tablename__ = "users"
 
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = db.Column(db.String(33), primary_key=True, default=uuid.uuid4)
     active = db.Column(db.Boolean)
-    userName = db.Column(db.String())
-    givenName = db.Column(db.String())
-    middleName = db.Column(db.String())
-    familyName = db.Column(db.String())
+    userName = db.Column(db.String(33))
+    givenName = db.Column(db.String(33))
+    middleName = db.Column(db.String(33))
+    familyName = db.Column(db.String(33))
     groups = db.relationship(
         "Group",
         secondary=links,
@@ -30,12 +30,12 @@ class User(db.Model):
         backref=db.backref("users", lazy=True),
     )
     emails_primary = db.Column(db.Boolean)
-    emails_value = db.Column(db.String())
-    emails_type = db.Column(db.String())
-    displayName = db.Column(db.String())
-    locale = db.Column(db.String())
-    externalId = db.Column(db.String())
-    password = db.Column(db.String())
+    emails_value = db.Column(db.String(33))
+    emails_type = db.Column(db.String(33))
+    displayName = db.Column(db.String(33))
+    locale = db.Column(db.String(33))
+    externalId = db.Column(db.String(33))
+    password = db.Column(db.String(33))
 
     def __init__(
         self,
@@ -103,8 +103,8 @@ class User(db.Model):
 class Group(db.Model):
     __tablename__ = "groups"
 
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    displayName = db.Column(db.String())
+    id = db.Column(db.String(33), primary_key=True, default=uuid.uuid4)
+    displayName = db.Column(db.String(33))
 
     def serialize(self):
         users = []
