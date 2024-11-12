@@ -20,17 +20,18 @@ def create_app():
 
 app = create_app()
 
-
 def auth_required(func):
     """Flask decorator to require the presence of a valid Authorization header."""
 
     @wraps(func)
     def check_auth(*args, **kwargs):
-        if request.headers["Authorization"].split("Bearer ")[1] == "123456789":
-            return func(*args, **kwargs)
-        else:
+        try:
+            if request.headers["Authorization"].split("Bearer ")[1] == "123456789":
+                return func(*args, **kwargs)
+            else:
+                return make_response(jsonify({"error": "Unauthorized"}), 403)
+        except KeyError:
             return make_response(jsonify({"error": "Unauthorized"}), 403)
-
     return check_auth
 
 
@@ -296,4 +297,4 @@ def delete_group(group_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0")
