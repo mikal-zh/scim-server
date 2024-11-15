@@ -44,11 +44,11 @@ def before_request():
                 "detail": "Content-Type must be application/scim+json"
             }), 415, {"Content-Type": "application/scim+json"})
 
-@app.after_request
-def after_request(response):
-    """Add the appropriate SCIM headers to all responses."""
-    response.headers['Content-Type'] = 'application/scim+json'
-    return response
+# @app.after_request
+# def after_request(response):
+#     """Add the appropriate SCIM headers to all responses."""
+#     response.headers['Content-Type'] = 'application/scim+json'
+#     return response
 
 @app.route("/scim/v2/Users", methods=["GET"])
 @auth_required
@@ -175,6 +175,7 @@ def create_user():
                         new_group.users.append(user)
 
             db.session.commit()
+            print(user.serialize())
             return make_response(jsonify(user.serialize()), 201)
         except Exception as e:
             return str(e)
