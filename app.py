@@ -54,33 +54,6 @@ def after_request(response):
 @auth_required
 def get_users():
     """Get SCIM Users"""
-#    start_index = int(request.args.get('startIndex', 1))
-#    count = int(request.args.get('count', 10))
-#
-#    if "filter" in request.args:
-#        single_filter = request.args["filter"].split(" ")
-#        filter_value = single_filter[2].strip('"')
-#        users = User.query.filter_by(userName=filter_value).first()
-#        if not users:
-#            users = []
-#        else:
-#            users = [users]
-#    else:
-#        users = User.query.paginate(start_index, count, False).items
-#
-#    serialized_users = [e.serialize() for e in users]
-#
-#    return make_response(
-#        jsonify({
-#            "schemas": ["urn:ietf:params:scim:api:messages:2.0:ListResponse"],
-#            "totalResults": len(users),
-#            "startIndex": start_index,
-#            "itemsPerPage": len(users),
-#            "Resources": serialized_users
-#        }),
-#        200,
-#        {"Content-Type": "application/scim+json"}
-#    )
     start_index = int(request.args.get('startIndex', 1))
     count = int(request.args.get('count', 10))
 
@@ -115,16 +88,11 @@ def get_users():
     # Construire et retourner la réponse SCIM avec les bonnes valeurs pour les champs requis
     return make_response(
         jsonify({
-#            "schemas": ["urn:ietf:params:scim:api:messages:2.0:ListResponse"],
-#            "totalResults": total_results,
-#            "startIndex": start_index,
-#            "itemsPerPage": len(users),
-#            "Resources": serialized_users
-            "schemas": ["urn:ietf:params:scim:api:messages:2.0:ListResponse"],
-            "totalResults": 0,
-            "Resources": [],
-            "startIndex": 1,
-            "itemsPerPage": 20
+           "schemas": ["urn:ietf:params:scim:api:messages:2.0:ListResponse"],
+           "totalResults": total_results,
+           "startIndex": start_index,
+           "itemsPerPage": len(users),
+           "Resources": serialized_users
         }),
         200,
         {"Content-Type": "application/scim+json"}
