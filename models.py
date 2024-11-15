@@ -6,10 +6,10 @@ from database import db
 links = db.Table(
     "link",
     db.Column(
-        "group_id", db.String(33), db.ForeignKey("groups.id"), primary_key=True
+        "group_id", db.String(128), db.ForeignKey("groups.id"), primary_key=True
     ),
     db.Column(
-        "user_id", db.String(33), db.ForeignKey("users.id"), primary_key=True
+        "user_id", db.String(128), db.ForeignKey("users.id"), primary_key=True
     ),
 )
 
@@ -17,12 +17,12 @@ links = db.Table(
 class User(db.Model):
     __tablename__ = "users"
 
-    id = db.Column(db.String(33), primary_key=True, default=uuid.uuid4)
+    id = db.Column(db.String(128), primary_key=True, default=uuid.uuid4)
     active = db.Column(db.Boolean)
-    userName = db.Column(db.String(33))
-    givenName = db.Column(db.String(33))
-    middleName = db.Column(db.String(33))
-    familyName = db.Column(db.String(33))
+    userName = db.Column(db.String(128))
+    givenName = db.Column(db.String(64))
+    middleName = db.Column(db.String(64))
+    familyName = db.Column(db.String(64))
     groups = db.relationship(
         "Group",
         secondary=links,
@@ -30,12 +30,12 @@ class User(db.Model):
         backref=db.backref("users", lazy=True),
     )
     emails_primary = db.Column(db.Boolean)
-    emails_value = db.Column(db.String(33))
-    emails_type = db.Column(db.String(33))
-    displayName = db.Column(db.String(33))
-    locale = db.Column(db.String(33))
-    externalId = db.Column(db.String(33))
-    password = db.Column(db.String(33))
+    emails_value = db.Column(db.String(64))
+    emails_type = db.Column(db.String(64))
+    displayName = db.Column(db.String(64))
+    locale = db.Column(db.String(64))
+    externalId = db.Column(db.String(64))
+    password = db.Column(db.String(64))
 
     def __init__(
         self,
@@ -103,8 +103,8 @@ class User(db.Model):
 class Group(db.Model):
     __tablename__ = "groups"
 
-    id = db.Column(db.String(33), primary_key=True, default=uuid.uuid4)
-    displayName = db.Column(db.String(33))
+    id = db.Column(db.String(128), primary_key=True, default=uuid.uuid4)
+    displayName = db.Column(db.String(64))
 
     def serialize(self):
         users = []

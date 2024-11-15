@@ -1,4 +1,7 @@
-.DS_Store
-env/
-ngrok
-migrations/
+# Created by venv; see https://docs.python.org/3/library/venv.html
+Lib
+Include
+Scripts
+pyvenv.cfg
+**/__pycache__
+migrations
