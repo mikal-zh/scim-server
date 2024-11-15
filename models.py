@@ -20,9 +20,9 @@ class User(db.Model):
     id = db.Column(db.String(128), primary_key=True, default=uuid.uuid4)
     active = db.Column(db.Boolean)
     userName = db.Column(db.String(128))
-    givenName = db.Column(db.String(64))
-    middleName = db.Column(db.String(64))
-    familyName = db.Column(db.String(64))
+    name_givenName = db.Column(db.String(64))
+    name_middleName = db.Column(db.String(64))
+    name_familyName = db.Column(db.String(64))
     groups = db.relationship(
         "Group",
         secondary=links,
@@ -54,9 +54,9 @@ class User(db.Model):
     ):
         self.active = active
         self.userName = userName
-        self.givenName = givenName
-        self.middleName = middleName
-        self.familyName = familyName
+        self.name_givenName = givenName
+        self.name_middleName = middleName
+        self.name_familyName = familyName
         self.emails_primary = emails_primary
         self.emails_value = emails_value
         self.emails_type = emails_type
@@ -80,9 +80,9 @@ class User(db.Model):
             "id": self.id,
             "userName": self.userName,
             "name": {
-                "givenName": self.givenName,
-                "middleName": self.middleName,
-                "familyName": self.familyName,
+                "givenName": self.name_givenName,
+                "middleName": self.name_middleName,
+                "familyName": self.name_familyName,
             },
             "emails": [
                 {
