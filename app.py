@@ -260,6 +260,8 @@ def serialize_user(user):
             },
             "meta": {
                 "resourceType": "User",
+                "created": "2010-01-23T04:56:22Z",
+                "lastModified": "2011-05-13T04:42:34Z",
             },
             "locale": user.locale,
         }
@@ -285,7 +287,7 @@ def get_users():
         users = pagination.items
         total_results = pagination.total
 
-    serialized_users = [e.serialize() for e in users]
+    serialized_users = [serialize_user(e) for e in users]
 
     return make_response(
         jsonify({
@@ -318,7 +320,7 @@ def get_user(user_id):
 @auth_required
 def create_user():
     """Create SCIM User"""
-    active = request.json.get("active")
+    active = request.json.get("active") or True
     displayName = request.json.get("displayName")
     emails = request.json.get("emails", [])
     externalId = request.json.get("externalId")
@@ -562,7 +564,7 @@ def get_groups():
     # Serialize groups
     serialized_groups = []
     for group in groups:
-        serialized_group = group.serialize()
+        serialized_group = serialize_group(group)
 
         # Exclude specified attributes
         for attr in excluded_attributes:
@@ -601,7 +603,7 @@ def get_group(group_id):
     excluded_attributes = request.args.get('excludedAttributes', '')
     excluded_attributes = excluded_attributes.split(',') if excluded_attributes else []
 
-    serialized_group = group.serialize()
+    serialized_group = serialize_group(group)
 
     for attr in excluded_attributes:
         attr = attr.strip()  # Clean up whitespace
@@ -646,7 +648,7 @@ def create_group():
         db.session.add(group)
         db.session.commit()
 
-        return make_response(jsonify(group.serialize()), 201)
+        return make_response(jsonify(serialize_group(group)), 201)
     except Exception as e:
         return make_response(
             jsonify({
@@ -657,7 +659,7 @@ def create_group():
             500
         )
 
-@app.route("/scim/v2/Groups/<group_id>", methods=["PATCH", "PUT"])
+@app.route("/scim/v2/Groups/<group_id>", methods=["PATCH"])
 @auth_required
 def update_group(group_id):
     """Update SCIM Group"""
@@ -705,64 +707,24 @@ def update_group(group_id):
                     if user:
                         group.users.append(user)
 
-            elif op == "remove" and path == "members":
-                for member in value:
-                    user = User.query.get(member["value"])
-                    if user and user in group.users:
-                        group.users.remove(user)
+            elif op == "remove" and "members" in path:
+                match = re.search(r'members\[(value|display)\s+eq\s+"([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}|[a-f0-9-]{12,64})"\]', path)
+                if match:
+                    field = match.group(1)
+                    filter = match.group(2)
+                    match field:
+                        case "value":
+                            group.users = [user for user in group.users if user.id != filter]
+                        case "display":
+                            group.users = [user for user in group.users if user.displayName != filter]
+                else:
+                    print("no match")
 
             elif op == "replace" and path == "externalId":
                 group.externalId = value
 
         db.session.commit()
         return make_response(jsonify(serialize_group(group)), 200)
-    except Exception as e:
-        db.session.rollback()
-        return make_response(
-            jsonify({
-                "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
-                "detail": str(e),
-                "status": 500,
-            }),
-            500,
-        )
-
-@app.route("/scim/v2/Groups/<group_id>", methods=["PATCH"])
-@auth_required
-def patch_group(group_id):
-    """Patch SCIM Group"""
-    data = request.get_json()
-    operations = data.get("Operations", [])
-    group = Group.query.get(group_id)
-
-    if not group:
-        return make_response(
-            jsonify({
-                "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
-                "detail": "Group not found",
-                "status": 404,
-            }),
-            404,
-        )
-
-    try:
-        for operation in operations:
-            op = operation["op"]
-            path = operation.get("path")
-            value = operation.get("value")
-
-            print(f"Operation: {op}, Path: {path}, Value: {value}")
-
-            if op == "replace" and path == "displayName":
-                group.displayName = value
-            elif op == "replace" and path == "externalId":
-                group.externalId = value
-            elif op == "remove" and path.startswith("members"):
-                member_id = path.split('"')[1]
-                group.members = [m for m in group.members if m.id != member_id]
-
-        db.session.commit()
-        return make_response(jsonify(group.serialize()), 200)
     except Exception as e:
         db.session.rollback()
         return make_response(
