@@ -242,7 +242,7 @@ def get_schemas():
     )
 
 def serialize_user(user):
-    return {
+    user = {
             "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
             "id": user.id,
             "userName": user.userName,
@@ -265,6 +265,7 @@ def serialize_user(user):
             },
             "locale": user.locale,
         }
+    return user
 
 @app.route("/scim/v2/Users", methods=["GET"])
 @auth_required
@@ -314,7 +315,8 @@ def get_user(user_id):
             }),
             404
         )
-    return jsonify(user.serialize())
+    
+    return jsonify(serialize_user(user))
 
 @app.route("/scim/v2/Users", methods=["POST"])
 @auth_required
@@ -350,9 +352,9 @@ def create_user():
             user = User(
                 active=active,
                 displayName=displayName,
-                emails_primary=emails[0]["primary"],
-                emails_value=emails[0]["value"],
-                emails_type=emails[0]["type"],
+                emails_primary=emails[0]["primary"] if len(emails)>0 else None,
+                emails_value=emails[0]["value"] if len(emails)>0 else None,
+                emails_type=emails[0]["type"] if len(emails)>0 else None,
                 externalId=externalId,
                 locale=locale,
                 givenName=givenName,
@@ -377,13 +379,25 @@ def create_user():
             db.session.commit()
 
             serialized_user = serialize_user(user)
+            
             return make_response(jsonify(serialized_user), 201)
         except Exception as e:
-            return str(e)
+            
+            return make_response(
+                jsonify(
+                    {
+                        "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
+                        "detail": "Creation of user failed" + str(e),
+                        "status": 500,
+                    }
+                ),
+                500,
+            )
 
 def format_attr(input_str):
     input_str = input_str.replace('.', '_')
-    return re.sub(r'\[.*?\]', '', input_str)
+    multival_param = re.search(r'\[\w+\s+(?:eq|ne|co|sw|ew|gt|lt|ge|le)\s+["\']([^"\']+)["\']\]', input_str)
+    return (re.sub(r'\[.*?\]', '', input_str), multival_param.group(1) if multival_param else None)
 
 @app.route("/scim/v2/Users/<string:user_id>", methods=["PATCH"])
 @auth_required
@@ -403,7 +417,6 @@ def update_user(user_id):
             404,
         )
     else:
-        # print(request.json)
         for operation in request.json["Operations"]:
             # make the operation
             op = operation.get("op")
@@ -422,81 +435,65 @@ def update_user(user_id):
                     400,
                 )
 
-            if op == "replace" and not path:
-                # Replace the entire user object
-                if not isinstance(value, dict):
-                    return make_response(
-                        jsonify(
-                            {
-                                "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
-                                "detail": "Value must be a dictionary when replacing the entire user.",
-                                "status": 400,
-                            }
-                        ),
-                        400,
-                    )
+            try:
+                if not path:
+                    # Replace the entire user object
+                    if not isinstance(value, dict):
+                        raise AttributeError
+                    if op == "replace" or op == "add":
+                        # Update each attribute in the user object
+                        for attr, attr_value in value.items():
+                            attr, multival_param = format_attr(attr)
+                            # remove point in attribute name and add a maj to next letter
+                            if hasattr(user, attr):
+                                setattr(user, attr, attr_value)
+                                if multival_param and "email" in attribute:
+                                    user.emails_type = multival_param
+                            else:
+                                raise AttributeError
+                elif path:
+                    # Normalize path for attribute matching
+                    attribute = path.split(":")[-1]  # Get the attribute name after any namespace prefixes
+                    attribute,multival_param = format_attr(attribute)
 
-                # Update each attribute in the user object
-                for attr, attr_value in value.items():
-                    attr = format_attr(attr)
-                    # remove point in attribute name and add a maj to next letter
-                    if hasattr(user, attr):
-                        setattr(user, attr, attr_value)
+                    if op == "replace" or op == "add":
+                        if hasattr(user, attribute):
+                            setattr(user, attribute, value)
+                            if multival_param and "email" in attribute:
+                                user.emails_type = multival_param
+                        else:
+                            raise AttributeError
+                    elif op == "remove":
+                        if hasattr(user, attribute):
+                            setattr(user, attribute, None)
+                        else:
+                            raise AttributeError
                     else:
-                        return make_response(
-                            jsonify(
-                                {
-                                    "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
-                                    "detail": f"Attribute '{attr}' not found on user.",
-                                    "status": 400,
-                                }
-                            ),
-                            400,
-                        )
-            elif path:
-                # Normalize path for attribute matching
-                attribute = path.split(":")[-1]  # Get the attribute name after any namespace prefixes
-                attribute = format_attr(attribute)
-
-                if op == "add":
-                    current_value = getattr(user, attribute, None)
-                    if current_value is None:
-                        setattr(user, attribute, value)
-                    elif isinstance(current_value, list):
-                        current_value.append(value)
-                    else:
-                        return make_response(
-                            jsonify(
-                                {
-                                    "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
-                                    "detail": f"Cannot add value to non-list attribute: {attribute}",
-                                    "status": 400,
-                                }
-                            ),
-                            400,
-                        )
-                elif op == "replace":
-                    setattr(user, attribute, value)
-                elif op == "remove":
-                    if hasattr(user, attribute):
-                        setattr(user, attribute, None)
-                else:
-                    return make_response(
-                        jsonify(
-                            {
-                                "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
-                                "detail": f"Unsupported operation: {op}",
-                                "status": 400,
-                            }
-                        ),
-                        400,
-                    )
-
+                        raise NotImplementedError
+            except AttributeError:
+                return make_response(
+                    jsonify(
+                        {
+                            "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
+                            "detail": f"Attribute '{attr}' not found on user.",
+                            "status": 400,
+                        }
+                    ),
+                    400,
+                )
+            except NotImplementedError:
+                return make_response(
+                    jsonify(
+                        {
+                            "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
+                            "detail": f"Unsupported operation: {op}",
+                            "status": 400,
+                        }
+                    ),
+                    400,
+                )
         db.session.commit()
-
-        # print("before/after", User.query.get(user_id).serialize(), user.serialize())
-
-        return make_response(jsonify(user.serialize()), 200)
+        return make_response(jsonify(serialize_user(user)), 200)
 
 @app.route("/scim/v2/Users/<string:user_id>", methods=["DELETE"])
 @auth_required
@@ -505,6 +502,7 @@ def delete_user(user_id):
     user = User.query.get(user_id)
     db.session.delete(user)
     db.session.commit()
+    
     return make_response("", 204)
 
 def serialize_group(group):
@@ -690,7 +688,7 @@ def update_group(group_id):
                     }),
                     400,
                 )
-            
+
             if op == "replace" and not path:
                 for field,val in value.items():
                     if field == "displayName":
