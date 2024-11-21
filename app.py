@@ -93,51 +93,6 @@ def get_schemas():
                     "uniqueness": "none"
                 },
                 {
-                    "name": "emails",
-                    "type": "complex",
-                    "multiValued": True,
-                    "description": "Email addresses for the user.",
-                    "required": True,
-                    "subAttributes": [
-                        {
-                            "name": "value",
-                            "type": "string",
-                            "multiValued": False,
-                            "description": "Email address value.",
-                            "required": True,
-                            "caseExact": False,
-                            "mutability": "readWrite",
-                            "returned": "default",
-                            "uniqueness": "none"
-                        },
-                        {
-                            "name": "type",
-                            "type": "string",
-                            "multiValued": False,
-                            "description": "Type of email (e.g., work, home).",
-                            "required": True,
-                            "caseExact": False,
-                            "mutability": "readWrite",
-                            "returned": "default",
-                            "uniqueness": "none",
-                            "canonicalValues": ["work"]
-                        },
-                        {
-                            "name": "primary",
-                            "type": "boolean",
-                            "multiValued": False,
-                            "description": "Indicates whether this email is the primary email.",
-                            "required": True,
-                            "mutability": "readWrite",
-                            "returned": "default",
-                            "uniqueness": "none"
-                        }
-                    ],
-                    "mutability": "readWrite",
-                    "returned": "default",
-                    "uniqueness": "none"
-                },
-                {
                     "name": "name",
                     "type": "complex",
                     "multiValued": False,
@@ -241,32 +196,6 @@ def get_schemas():
         200
     )
 
-def serialize_user(user):
-    user = {
-            "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
-            "id": user.id,
-            "userName": user.userName,
-            "displayName" : user.displayName,
-            "active": user.active,
-            "emails": [{
-                "value": user.emails_value,
-                "type": user.emails_type,
-                "primary": user.emails_primary
-            }],
-            "name": {
-                "givenName": user.name_givenName,
-                "familyName": user.name_familyName,
-                "middleName": user.name_middleName
-            },
-            "meta": {
-                "resourceType": "User",
-                "created": "2010-01-23T04:56:22Z",
-                "lastModified": "2011-05-13T04:42:34Z",
-            },
-            "locale": user.locale,
-        }
-    return user
-
 @app.route("/scim/v2/Users", methods=["GET"])
 @auth_required
 def get_users():
@@ -288,7 +217,7 @@ def get_users():
         users = pagination.items
         total_results = pagination.total
 
-    serialized_users = [serialize_user(e) for e in users]
+    serialized_users = [u.serialize() for u in users]
 
     return make_response(
         jsonify({
@@ -316,7 +245,7 @@ def get_user(user_id):
             404
         )
     
-    return jsonify(serialize_user(user))
+    return jsonify(user.serialize())
 
 @app.route("/scim/v2/Users", methods=["POST"])
 @auth_required
@@ -324,7 +253,6 @@ def create_user():
     """Create SCIM User"""
     active = request.json.get("active") or True
     displayName = request.json.get("displayName")
-    emails = request.json.get("emails", [])
     externalId = request.json.get("externalId")
     groups = request.json.get("groups", [])
     locale = request.json.get("locale")
@@ -352,9 +280,6 @@ def create_user():
             user = User(
                 active=active,
                 displayName=displayName,
-                emails_primary=emails[0]["primary"] if len(emails)>0 else None,
-                emails_value=emails[0]["value"] if len(emails)>0 else None,
-                emails_type=emails[0]["type"] if len(emails)>0 else None,
                 externalId=externalId,
                 locale=locale,
                 givenName=givenName,
@@ -378,8 +303,7 @@ def create_user():
 
             db.session.commit()
 
-            serialized_user = serialize_user(user)
-            
+            serialized_user = user.serialize()            
             return make_response(jsonify(serialized_user), 201)
         except Exception as e:
             
@@ -396,8 +320,7 @@ def create_user():
 
 def format_attr(input_str):
     input_str = input_str.replace('.', '_')
-    multival_param = re.search(r'\[\w+\s+(?:eq|ne|co|sw|ew|gt|lt|ge|le)\s+["\']([^"\']+)["\']\]', input_str)
-    return (re.sub(r'\[.*?\]', '', input_str), multival_param.group(1) if multival_param else None)
+    return re.sub(r'\[.*?\]', '', input_str)
 
 @app.route("/scim/v2/Users/<string:user_id>", methods=["PATCH"])
 @auth_required
@@ -419,7 +342,7 @@ def update_user(user_id):
     else:
         for operation in request.json["Operations"]:
             # make the operation
-            op = operation.get("op")
+            op = operation.get("op").lower()
             path = operation.get("path")
             value = operation.get("value")
 
@@ -443,24 +366,20 @@ def update_user(user_id):
                     if op == "replace" or op == "add":
                         # Update each attribute in the user object
                         for attr, attr_value in value.items():
-                            attr, multival_param = format_attr(attr)
+                            attr = format_attr(attr)
                             # remove point in attribute name and add a maj to next letter
                             if hasattr(user, attr):
                                 setattr(user, attr, attr_value)
-                                if multival_param and "email" in attribute:
-                                    user.emails_type = multival_param
                             else:
                                 raise AttributeError
                 elif path:
                     # Normalize path for attribute matching
                     attribute = path.split(":")[-1]  # Get the attribute name after any namespace prefixes
-                    attribute,multival_param = format_attr(attribute)
+                    attribute = format_attr(attribute)
 
                     if op == "replace" or op == "add":
                         if hasattr(user, attribute):
                             setattr(user, attribute, value)
-                            if multival_param and "email" in attribute:
-                                user.emails_type = multival_param
                         else:
                             raise AttributeError
                     elif op == "remove":
@@ -493,7 +412,7 @@ def update_user(user_id):
                     400,
                 )
         db.session.commit()
-        return make_response(jsonify(serialize_user(user)), 200)
+        return make_response(jsonify(user.serialize()), 200)
 
 @app.route("/scim/v2/Users/<string:user_id>", methods=["DELETE"])
 @auth_required
@@ -504,20 +423,6 @@ def delete_user(user_id):
     db.session.commit()
     
     return make_response("", 204)
-
-def serialize_group(group):
-    return {
-        "schemas": ["urn:ietf:params:scim:schemas:core:2.0:Group"],
-        "id": group.id,
-        "displayName": group.displayName,
-        "members": [
-            {"value": member.id, "display": member.displayName}
-            for member in group.users
-        ],
-        "meta": {
-            "resourceType": "Group",
-        },
-    }
 
 @app.route("/scim/v2/Groups", methods=["GET"])
 @auth_required
@@ -562,8 +467,7 @@ def get_groups():
     # Serialize groups
     serialized_groups = []
     for group in groups:
-        serialized_group = serialize_group(group)
-
+        serialized_group = group.serialize()
         # Exclude specified attributes
         for attr in excluded_attributes:
             attr = attr.strip()
@@ -601,8 +505,7 @@ def get_group(group_id):
     excluded_attributes = request.args.get('excludedAttributes', '')
     excluded_attributes = excluded_attributes.split(',') if excluded_attributes else []
 
-    serialized_group = serialize_group(group)
-
+    serialized_group = group.serialize()
     for attr in excluded_attributes:
         attr = attr.strip()  # Clean up whitespace
         if attr in serialized_group:
@@ -646,7 +549,7 @@ def create_group():
         db.session.add(group)
         db.session.commit()
 
-        return make_response(jsonify(serialize_group(group)), 201)
+        return make_response(jsonify(group.serialize()), 201)
     except Exception as e:
         return make_response(
             jsonify({
@@ -722,7 +625,7 @@ def update_group(group_id):
                 group.externalId = value
 
         db.session.commit()
-        return make_response(jsonify(serialize_group(group)), 200)
+        return make_response(jsonify(group.serialize()), 200)
     except Exception as e:
         db.session.rollback()
         return make_response(

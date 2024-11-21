@@ -29,9 +29,6 @@ class User(db.Model):
         lazy="subquery",
         backref=db.backref("users", lazy=True),
     )
-    emails_primary = db.Column(db.Boolean)
-    emails_value = db.Column(db.String(64))
-    emails_type = db.Column(db.String(64))
     displayName = db.Column(db.String(64))
     locale = db.Column(db.String(64))
     externalId = db.Column(db.String(64))
@@ -44,9 +41,6 @@ class User(db.Model):
         givenName,
         middleName,
         familyName,
-        emails_primary,
-        emails_value,
-        emails_type,
         displayName,
         locale,
         externalId,
@@ -57,9 +51,6 @@ class User(db.Model):
         self.name_givenName = givenName
         self.name_middleName = middleName
         self.name_familyName = familyName
-        self.emails_primary = emails_primary
-        self.emails_value = emails_value
-        self.emails_type = emails_type
         self.displayName = displayName
         self.locale = locale
         self.externalId = externalId
@@ -84,19 +75,16 @@ class User(db.Model):
                 "middleName": self.name_middleName,
                 "familyName": self.name_familyName,
             },
-            "emails": [
-                {
-                    "primary": self.emails_primary,
-                    "value": self.emails_value,
-                    "type": self.emails_type,
-                }
-            ],
             "displayName": self.displayName,
             "locale": self.locale,
             "externalId": self.externalId,
             "active": self.active,
             "groups": groups,
-            "meta": {"resourceType": "User"},
+            "meta": {
+                "resourceType": "User",
+                "created": "2010-01-23T04:56:22Z",
+                "lastModified": "2011-05-13T04:42:34Z",
+            },
         }
 
 
@@ -118,6 +106,8 @@ class Group(db.Model):
             "id": self.id,
             "meta": {
                 "resourceType": "Group",
+                "created": "2010-01-23T04:56:22Z",
+                "lastModified": "2011-05-13T04:42:34Z",
             },
             "displayName": self.displayName,
             "members": users,
