@@ -16,4 +16,7 @@ six==1.16.0
 SQLAlchemy==1.3.23
 typing_extensions==4.12.2
 Werkzeug==1.0.1
-mysqlclient
+identity
+mysqlclient==2.2.6
+python-dotenv
+Flask-Session

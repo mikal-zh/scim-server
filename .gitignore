@@ -8,3 +8,5 @@ migrations
 lib64
 bin
 lib
+flask_session
+include
