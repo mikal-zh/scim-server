@@ -112,3 +112,36 @@ class Group(db.Model):
             "displayName": self.displayName,
             "members": users,
         }
+
+class Menu(db.Model):
+    __tablename__ = "Menu"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(128))
+    nb_entree = db.Column(db.Integer)
+    nb_plat = db.Column(db.Integer)
+    nb_dessert = db.Column(db.Integer)
+
+    def __init__(
+        self,
+        username,
+        nb_entree,
+        nb_plat,
+        nb_dessert,
+    ):
+        self.username = username
+        self.nb_entree = nb_entree
+        self.nb_plat = nb_plat
+        self.nb_dessert = nb_dessert
+
+    def serialize(self):
+        return {
+            "schemas": [
+                "urn:ietf:params:scim:schemas:core:2.0:Menu",
+            ],
+            "id": self.id,
+            "userName": self.userName,
+            "nb_entree": self.nb_entree,
+            "nb_plat": self.nb_plat,
+            "nb_dessert": self.nb_dessert
+        }

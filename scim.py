@@ -1,16 +1,11 @@
 from flask import Blueprint
-from flask import Flask, jsonify, make_response, request, redirect, render_template, session, url_for
-# from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, jsonify, make_response, request, session
 from functools import wraps
 from database import db
 from models import User, Group
 import re
 from sqlalchemy import func
 from auth import auth_router
-# import app_config
-# import identity.web
-# import requests
-# from flask_session import Session
 
 scim_router = Blueprint('scim', __name__, template_folder='templates')
 

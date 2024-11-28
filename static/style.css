@@ -1,150 +1,226 @@
-/* .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1.5em;
-  }
-  
-  .menu {
-    font-family: "Inter", sans-serif;
-    font-size: 14px;
-  }
-  
-  .menu-group-heading {
-    margin: 0;
-    padding-bottom: 1em;
-    border-bottom: 2px solid #ccc;
-  }
-  
-  .menu-group {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5em;
-    padding: 1.5em 0;
-  }
-  
-  .menu-item {
-    display: flex;
-  }
-  
-  .menu-item-image {
-    width: 80px;
-    height: 80px;
-    flex-shrink: 0;
-    object-fit: cover;
-    margin-right: 1.5em;
-  }
-  
-  .menu-item-text {
-    flex-grow: 1;
-  }
-  
-  .menu-item-heading {
-    display: flex;
-    justify-content: space-between;
-    margin: 0;
-  }
-  
-  .menu-item-name {
-    margin-right: 1.5em;
-  }
-  
-  .menu-item-description {
-    line-height: 1.6;
-  }
-  
-  @media screen and (min-width: 992px) {
-    .menu {
-      font-size: 16px;
-    }
-  
-    .menu-group {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  
-    .menu-item-image {
-      width: 125px;
-      height: 125px;
-    }
-  }
-   */
-
-/* General Styles */
+/* Contenu du body */
 body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f8f8f8;
-  color: #333;
+    margin: 0;
+    font-family: "Bai Jamjuree", sans-serif;
+    background-image: url(image.png);
+    background-repeat: no-repeat;
+    background-position-x: center;
+    background-position-y: top;
+    background-size: 100%;
 }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  text-align: center;
+h1 {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 2rem;
 }
 
-.menu-title {
-  font-size: 2.5em;
-  margin-bottom: 20px;
+a{
+    text-decoration : none;
 }
 
-/* Menu Grid */
+/* header de la page */
+header {
+    padding: 1px;
+}
+
+.top {
+    background-color: #334155;
+    height: 80px;
+}
+
+/*les caractéristique de la banière*/
+.toprightuser{
+    position:absolute;
+    top: 10px;
+    right: 75px;
+    font-size: 25px;
+    color: black;
+}
+
+.toprightrole{
+    position:absolute;
+    top: 40px;
+    height: 50px;
+    right: 75px;
+    font-size: 15px;
+    color: black;
+}
+
+.texte_en_bas{
+    position: absolute;
+    bottom: 10px;
+}
+
+.toprightlogo{
+    position:absolute;
+    top: 13px;
+    right: -2px;
+    font-size: 0px;
+}
+
+.logotopleft{
+    position:absolute;
+    top: 12px;
+    left: 10px;
+    font-size: 0px;
+}
+
+.placetopleft{
+    position:absolute;
+    top: 0px;
+    left: 70px;
+    font-size: 0px;
+}
+
+/*add*/
+.menu{
+    position: absolute;
+    top: 0px;
+    left: 300px;
+}
+
+.like{
+    position:absolute;
+    top: 0px;
+    left: 425px;
+}
+
+.commande{
+    position:absolute;
+    top: 0px;
+    left: 550px;
+}
+
+.valider{
+    position:absolute;
+    top: 0px;
+    right: 300px;
+}
+
+/*add*/
+
+/* Bouton de retour en bas */
+.footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+}
+
+/* Style du bouton */
+.button-link {
+    display: inline-block;
+    padding: 15px 100px;
+    margin: 10px 4px;
+    color: white;
+    background-color: #334155;
+    font-family: sans-serif;
+    text-transform: uppercase;
+    text-align: center;
+    position: relative;
+    text-decoration: none;
+    border: 1px solid;
+}
+
+.button-link:hover {
+    color: bisque;
+}
+
+.button-link::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f7c2f9;
+    z-index: -1;
+    opacity: 0;
+    transform: scaleY(0.1);
+    transition: all 0.4s;
+}
+
+.button-link:hover::before {
+    opacity: 1;
+    transform: scaleY(1);
+    transition: transform 0.6s cubic-bezier(0.08, 0.35, 0.13, 1.02), opacity 0.4s;
+}
+
+.saisirbuton {
+    height: 50%;
+}
+
+.centrage {
+    position: absolute;
+    width: 100%;
+    top: 42%;
+}
+
+/* Conteneur principal */
+.menu-cantine {
+    font-family: "Arial", sans-serif;
+    padding: 2em;
+    text-align: center;
+}
+
+/* Section (Entrée, Plat, Dessert) */
+.menu-section {
+    margin-bottom: 2em;
+}
+
+/* Titre de section */
+.section-title {
+    font-size: 1.8em;
+    margin-bottom: 1em;
+    color: #333;
+}
+
+/* Grille des éléments */
 .menu-grid {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 colonnes */
+    gap: 1em; /* Espacement entre les cases */
+    justify-content: center;
 }
 
-/* Menu Card */
-.menu-card {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  width: 250px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: transform 0.3s;
+.menu-item {
+    padding: 1em;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    font-size: 1.2em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
 }
 
-.menu-card:hover {
-  transform: scale(1.05);
+.menu-item.special-item {
+    grid-column: span 3; /* Cette case occupe toute la largeur (3 colonnes) */
+    background-color: #ffecb3;
+    font-weight: bold;
+    font-size: 1.4em;
 }
 
-.card-header {
-  background-color: #ff3b3b;
-  color: #fff;
-  padding: 10px;
+.menu-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-bottom: 0.5em;
 }
 
-.card-header h2 {
-  margin: 0;
-  font-size: 1.5em;
+.menu-button {
+    margin-top: 1em;
+    padding: 0.5em 1em;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
 }
 
-.card-image {
-  margin: 20px 0;
-}
-
-.card-image img {
-  border-radius: 50%;
-  border: 4px solid gold;
-  width: 120px;
-  height: 120px;
-}
-
-.card-body {
-  padding: 10px 0;
-}
-
-.dish-name {
-  font-size: 1.2em;
-  font-weight: bold;
-  margin: 5px 0;
-}
-
-.dish-price {
-  font-size: 1em;
-  color: #555;
+.menu-button:hover {
+    background-color: #0056b3;
 }
