@@ -1,11 +1,11 @@
 from flask import Blueprint
 from flask import Flask, jsonify, make_response, request, session
 from functools import wraps
-from database import db
-from models import User, Group
+from services.database import db
+from models.models import User, Group, Menu
 import re
 from sqlalchemy import func
-from auth import auth_router
+# from services.auth import auth_router
 
 scim_router = Blueprint('scim', __name__, template_folder='templates')
 
@@ -647,3 +647,4 @@ def delete_group(group_id):
     db.session.delete(group)
     db.session.commit()
     return "", 204
+

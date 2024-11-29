@@ -4,6 +4,6 @@ AUTHORITY = os.getenv("AUTHORITY")
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
-REDIRECT_PATH = "/getAToken"
-SCOPE = ["User.Read", "email", "profile", "openid"]
+REDIRECT_PATH = "/auth/redirect"
+SCOPE = ["User.Read", "email"]
 SESSION_TYPE = "filesystem"

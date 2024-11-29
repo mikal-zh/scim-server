@@ -10,3 +10,4 @@ bin
 lib
 flask_session
 include
+.env

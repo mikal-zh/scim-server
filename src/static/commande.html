@@ -38,15 +38,29 @@
     <div class="toprightrole">
         Rôles: role_admin, role_user    </div>
 
-    <!-- <div class="centrage">
-        <center>
-            <a href="utilisateur.php" class="button-link">SAISIR</a>
-            <br>
-            <a href="management.php" class="button-link">VALIDER</a>
-        </center>
-    </div> -->
-
-
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Entrées</th>
+                <th>Plats</th>
+                <th>Desserts</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr>
+                <td>{{ row.id }}</td>
+                <td>{{ row.username }}</td>
+                <td>{{ row.nb_entree }}</td>
+                <td>{{ row.nb_plat }}</td>
+                <td>{{ row.nb_dessert }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+        
 
 </body>
 </html>

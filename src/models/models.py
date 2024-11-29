@@ -1,6 +1,6 @@
 # from sqlalchemy.dialects.mysql import UUID
 import uuid
-from database import db
+from services.database import db
 
 # Define a many-to-many relationship
 links = db.Table(
@@ -12,7 +12,6 @@ links = db.Table(
         "user_id", db.String(128), db.ForeignKey("users.id"), primary_key=True
     ),
 )
-
 
 class User(db.Model):
     __tablename__ = "users"
