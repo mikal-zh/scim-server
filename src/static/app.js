@@ -23,8 +23,8 @@ function handleSubmit(event) {
     const results = sumCategories(formData);
 
     // POST data to server
-    // console.log(formData);
-    // console.log(results);
+    console.log(formData);
+    console.log(results);
 
     // Recup id user
 

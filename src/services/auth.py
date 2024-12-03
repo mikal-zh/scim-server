@@ -1,8 +1,5 @@
 from flask import Blueprint
-from flask import Flask, jsonify, make_response, request, redirect, render_template, session, url_for
-from functools import wraps
-from services.database import db
-from sqlalchemy import func
+from flask import request, redirect, render_template, session, url_for
 import app_config
 import identity.web
 import requests

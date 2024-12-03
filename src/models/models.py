@@ -1,4 +1,3 @@
-# from sqlalchemy.dialects.mysql import UUID
 import uuid
 from services.database import db
 
@@ -85,7 +84,6 @@ class User(db.Model):
                 "lastModified": "2011-05-13T04:42:34Z",
             },
         }
-
 
 class Group(db.Model):
     __tablename__ = "groups"
