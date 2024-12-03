@@ -16,6 +16,7 @@ auth = identity.web.Auth(
     client_credential=  CLIENT_SECRET,
 )
 
+@auth_router.route("/")
 @auth_router.route("/login")
 def login():
     return render_template("login.html", **auth.log_in(

@@ -1,13 +1,40 @@
-from flask import Blueprint
+from flask import Blueprint, render_template, Flask
 from flask import jsonify, make_response, request
 from services.database import db
 from models.models import Menu
+import mysql.connector
 
 menu_router = Blueprint('menu', __name__,)
 
-@menu_router.route('/hello')
+config = {
+    'user': 'admin_secure',
+    'password': 'g',
+    'host': '0.0.0.0',
+    'database': 'scim'
+}
+
+@menu_router.route('/hello', methods=["GET"])
 def hello():
-    return 'Hello World!'
+    return jsonify('Hello World!')
+
+@menu_router.route('/commande', methods=["GET"])
+def commande():
+    conn = mysql.connector.connect(**config)
+    cursor = conn.cursor()
+
+    # Requête pour récupérer les données
+    query = "SELECT * FROM Menu;"
+    cursor.execute(query)
+
+    # Récupération des colonnes et des lignes
+    columns = [desc[0] for desc in cursor.description]
+    rows = cursor.fetchall()
+
+    # Fermeture de la connexion
+    cursor.close()
+    conn.close()
+
+    return render_template("commande.html", columns=columns, rows=rows)
 
 @menu_router.route("/menu", methods=["POST"])
 def create_menu():
@@ -25,7 +52,7 @@ def create_menu():
         )
         db.session.add(menu)
         db.session.commit()
-        # serialized_menu = menu.serialize()            
+        # serialized_menu = menu.serialize()
     
     except Exception as e:
         return make_response(
