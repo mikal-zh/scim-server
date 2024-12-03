@@ -115,21 +115,24 @@ class Menu(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(128))
-    nb_entree = db.Column(db.Integer)
-    nb_plat = db.Column(db.Integer)
-    nb_dessert = db.Column(db.Integer)
+    Entree = db.Column(db.Integer)
+    Plat = db.Column(db.Integer)
+    Dessert = db.Column(db.Integer)
+    Total = db.Column(db.Integer)
 
     def __init__(
         self,
         username,
-        nb_entree,
-        nb_plat,
-        nb_dessert,
+        Entree,
+        Plat,
+        Dessert,
+        Total,
     ):
         self.username = username
-        self.nb_entree = nb_entree
-        self.nb_plat = nb_plat
-        self.nb_dessert = nb_dessert
+        self.Entree = Entree
+        self.Plat = Plat
+        self.Dessert = Dessert
+        self.Total = Total
 
     def serialize(self):
         return {
@@ -137,8 +140,9 @@ class Menu(db.Model):
                 "urn:ietf:params:scim:schemas:core:2.0:Menu",
             ],
             "id": self.id,
-            "userName": self.userName,
-            "nb_entree": self.nb_entree,
-            "nb_plat": self.nb_plat,
-            "nb_dessert": self.nb_dessert
+            "userName": self.username,
+            "Entree": self.Entree,
+            "Plat": self.Plat,
+            "Dessert": self.Dessert,
+            "Total": self.Total
         }
