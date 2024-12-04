@@ -18,13 +18,13 @@
                 <img src="../static/picture/top/logo.png" alt="logo ariovis" width="50" height="50">
             </div>
             <div class="menu">
-                <a href="../static/menu.html" style="color: black;"><h1>MENU</h1></a>
+                <a href="https://securesnack.ariovis.fr/index" style="color: black;"><h1>MENU</h1></a>
             </div>
             <!-- <div class="like">
                 <a href="aimer.html" style="color: black;"><h1>AIMER</h1></a>
             </div> -->
             <div class="commande">
-                <a href="commande.html" style="color: white;"><h1>COMMANDE</h1></a>
+                <a href="https://securesnack.ariovis.fr/commande" style="color: white;"><h1>COMMANDE</h1></a>
             </div>
             <!-- <div class="valider">
                 <a href="valider.html">
@@ -34,21 +34,26 @@
         </header>
     </div>
     <div class="toprightuser">
-        securespend    </div>
+        {{user.name}}
+    </div>
     <div class="toprightrole">
-        Rôles: role_admin, role_user    </div>
-
+        {% for role in user.roles %}
+            {{ role }},
+        {% endfor %}
+    </div>
+        <ul>
+            {% if config.get("ENDPOINT") %}
+              <li><a href='/call_downstream_api'>Call a downstream API</a></li>
+            {% endif %}
+        
+            <li><a href="/logout">Logout</a></li>
+            </ul>
     <table>
         <thead>
             <tr>
                 {% for column in columns %}
                 <th>{{ column }}</th>
                 {% endfor %}
-                <!-- <th>ID</th>
-                <th>Username</th>
-                <th>Entrées</th>
-                <th>Plats</th>
-                <th>Desserts</th> -->
             </tr>
         </thead>
         <tbody>

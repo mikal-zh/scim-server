@@ -35,7 +35,7 @@ def auth_response():
 def logout():
     return redirect(auth.log_out(url_for(".index", _external=True)))
 
-@auth_router.route("/index.html")
+@auth_router.route("/index")
 def index():
     user = auth.get_user()
     if not user:

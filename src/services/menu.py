@@ -1,8 +1,10 @@
 from flask import Blueprint, render_template, Flask
-from flask import jsonify, make_response, request
+from flask import jsonify, make_response, request, redirect, url_for
 from services.database import db
 from models.models import Menu
 import mysql.connector
+from services.authentification import auth
+from models.models import User
 
 menu_router = Blueprint('menu', __name__,)
 
@@ -12,6 +14,10 @@ config = {
     'host': '0.0.0.0',
     'database': 'scim'
 }
+
+# @menu_router.route("/home")
+# def home():
+#     return render_template("home.html")
 
 @menu_router.route('/commande', methods=["GET"])
 def commande():
@@ -24,17 +30,21 @@ def commande():
     columns = [desc[0] for desc in cursor.description]
     rows = cursor.fetchall()
 
-    # total = rows[2] + rows[4]
-    # print (total)
-
     cursor.close()
     conn.close()
 
-    return render_template("commande.html", columns=columns, rows=rows)#, total = total)
+    user = auth.get_user()
+    if not user:
+        return redirect(url_for("auth.login"))
+    print(user)
+    return render_template("commande.html", columns=columns, rows=rows, user=user)#, total = total)
 
 @menu_router.route("/menu", methods=["POST"])
 def create_menu():
-    username = "user"
+    user = auth.get_user()
+    if not user:
+        return redirect(url_for("auth.login"))
+    username = User.query.get(user["aud"]).name_givenName
     Entree = request.json.get("Entree")
     Plat = request.json.get("Plat")
     Dessert = request.json.get("Dessert")

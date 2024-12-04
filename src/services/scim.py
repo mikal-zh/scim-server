@@ -5,7 +5,6 @@ from services.database import db
 from models.models import User, Group, Menu
 import re
 from sqlalchemy import func
-# from services.auth import auth_router
 
 scim_router = Blueprint('scim', __name__, template_folder='templates')
 
@@ -245,6 +244,7 @@ def get_user(user_id):
 @auth_required
 def create_user():
     """Create SCIM User"""
+    id_user = None
     active = request.json.get("active") or True
     displayName = request.json.get("displayName")
     externalId = request.json.get("externalId")
@@ -272,6 +272,7 @@ def create_user():
     else:
         try:
             user = User(
+                id = id_user,
                 active=active,
                 displayName=displayName,
                 externalId=externalId,

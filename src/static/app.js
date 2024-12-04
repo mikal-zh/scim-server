@@ -29,7 +29,6 @@ function handleSubmit(event) {
 
     if (results.total == 0)
         return false;
-    // Recup id user
 
     // POST database    
     let i = fetch('https://securesnack.ariovis.fr/menu', {

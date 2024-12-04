@@ -34,6 +34,7 @@ class User(db.Model):
 
     def __init__(
         self,
+        id,
         active,
         userName,
         givenName,
@@ -44,6 +45,7 @@ class User(db.Model):
         externalId,
         password,
     ):
+        self.id = id
         self.active = active
         self.userName = userName
         self.name_givenName = givenName

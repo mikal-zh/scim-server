@@ -1,6 +1,6 @@
 from flask import Flask
 from services.database import db
-from services.auth import auth_router
+from services.authentification import auth_router
 import app_config
 from flask_session import Session
 from services.scim import scim_router
