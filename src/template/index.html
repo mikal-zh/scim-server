@@ -25,19 +25,16 @@
       <div class="toprightuser">
         {{user.name}}
       </div>
-      <div class="toprightrole">
-        {% for role in user.roles %}
-          {{ role }},
-        {% endfor %}
+      <div class="logout_web">
+        <ul>
+          {% if config.get("ENDPOINT") %}
+            <li><a href='/call_downstream_api'>Call a downstream API</a></li>
+          {% endif %}
+      
+          <li><a href="/logout">Logout</a></li>
+          </ul>
       </div>
-          <ul>
-            {% if config.get("ENDPOINT") %}
-              <li><a href='/call_downstream_api'>Call a downstream API</a></li>
-            {% endif %}
-        
-            <li><a href="/logout">Logout</a></li>
-            </ul>
-
+          
           <form onsubmit="return handleSubmit(event)" id="myForm">
           <div class="menu-cantine">
               <div class="menu-section">
@@ -100,7 +97,7 @@
                     <input type="number" id="plat" name="plat" min="0" max="10" />
                   </div>
                   <div class="menu-item">
-                    <img src="../static/picture/image_plat/pizza.bmp" alt="Plat" class="menu-image">
+                    <img src="../static/picture/image_plat/pizza.jpg" alt="Plat" class="menu-image">
                     <p>Pizza</p>
                     <input type="number" id="plat" name="plat" min="0" max="10" />
                   </div>

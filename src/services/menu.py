@@ -21,30 +21,40 @@ config = {
 
 @menu_router.route('/commande', methods=["GET"])
 def commande():
+    user = auth.get_user()
+    username = user["name"]
+    if not user:
+        return redirect(url_for("auth.login"))
+
     conn = mysql.connector.connect(**config)
     cursor = conn.cursor()
 
-    query = "SELECT * FROM Menu;"# where username = \"user1\";"
-    cursor.execute(query)
+    query = "SELECT * FROM Menu where username = %s;"# where username = \"user1\";"
+    cursor.execute(query, (username,))
 
     columns = [desc[0] for desc in cursor.description]
     rows = cursor.fetchall()
-
     cursor.close()
     conn.close()
+    entree = 0
+    plat = 0
+    dessert = 0
+    total_all = 0
+    for total_nb in rows:
+        entree = entree + total_nb[2]
+        plat = plat + total_nb[3]
+        dessert = dessert + total_nb[4]
+        total_all = total_all + total_nb[5]
 
-    user = auth.get_user()
-    if not user:
-        return redirect(url_for("auth.login"))
-    print(user)
-    return render_template("commande.html", columns=columns, rows=rows, user=user)#, total = total)
+    # print(entree, plat, dessert, total_all)
+    return render_template("commande.html", columns=columns, rows=rows, user=user, entree=entree, plat=plat, dessert=dessert, total_all=total_all)
 
 @menu_router.route("/menu", methods=["POST"])
 def create_menu():
     user = auth.get_user()
     if not user:
         return redirect(url_for("auth.login"))
-    username = User.query.get(user["aud"]).name_givenName
+    username = user["name"] #scim User.query.filter_by(userName=user["email"]).first().name_givenName
     Entree = request.json.get("Entree")
     Plat = request.json.get("Plat")
     Dessert = request.json.get("Dessert")

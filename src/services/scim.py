@@ -201,6 +201,29 @@ def get_users():
         if len(filter_parts) == 3 and filter_parts[0] == "userName" and filter_parts[1] == "eq":
             filter_value = filter_parts[2].strip('"').lower()
             users = User.query.filter(func.lower(User.userName) == filter_value).all()
+            if not users:
+                print("no user")
+                return make_response(
+                    jsonify({
+                        "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
+                        "detail": "No user found matching the filter criteria.",
+                        "status": 404
+                    }),
+                    404
+                )
+            
+            if len(users) > 1:
+                print("same user")
+                return make_response(
+                    jsonify({
+                        "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
+                        "scimType": "tooMany",
+                        "detail": f"Multiple users found matching the filter {filter_value}",
+                        "status": 400
+                    }),
+                    400
+                )
+            
             total_results = len(users)
         else:
             users = []
@@ -244,7 +267,6 @@ def get_user(user_id):
 @auth_required
 def create_user():
     """Create SCIM User"""
-    id_user = None
     active = request.json.get("active") or True
     displayName = request.json.get("displayName")
     externalId = request.json.get("externalId")
@@ -272,7 +294,6 @@ def create_user():
     else:
         try:
             user = User(
-                id = id_user,
                 active=active,
                 displayName=displayName,
                 externalId=externalId,
@@ -416,6 +437,9 @@ def delete_user(user_id):
     user = User.query.get(user_id)
     db.session.delete(user)
     db.session.commit()
+    # scim username  = User.query.filter_by(userName=user["email"]).first().name_givenName
+    # db.session.delete(menu)
+    #db.session.commit()
     
     return make_response("", 204)
 

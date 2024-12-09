@@ -7,7 +7,7 @@ from app_config import AUTHORITY, CLIENT_ID, CLIENT_SECRET
 
 auth_router = Blueprint('auth', __name__, template_folder="../template/")
 
-print("env var", AUTHORITY, CLIENT_ID)
+# print("env var", AUTHORITY, CLIENT_ID)n
 
 auth = identity.web.Auth(
     session=session,
@@ -40,7 +40,6 @@ def index():
     user = auth.get_user()
     if not user:
         return redirect(url_for("auth.login"))
-    print(user)
     return render_template("index.html", user=user)
 
 @auth_router.route("/call_downstream_api")

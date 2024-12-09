@@ -49,3 +49,7 @@ function handleSubmit(event) {
     // prevent from submitting the form
     return false
 }
+
+function deleteDB(event) {
+    const formData = new FormData(event.target);
+}

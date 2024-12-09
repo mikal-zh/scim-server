@@ -20,27 +20,15 @@
             <div class="menu">
                 <a href="https://securesnack.ariovis.fr/index" style="color: black;"><h1>MENU</h1></a>
             </div>
-            <!-- <div class="like">
-                <a href="aimer.html" style="color: black;"><h1>AIMER</h1></a>
-            </div> -->
             <div class="commande">
                 <a href="https://securesnack.ariovis.fr/commande" style="color: white;"><h1>COMMANDE</h1></a>
             </div>
-            <!-- <div class="valider">
-                <a href="valider.html">
-                    <img src="caddie.png" alt="logo ariovis" height="50">
-                </a>
-            </div> -->
         </header>
     </div>
     <div class="toprightuser">
         {{user.name}}
     </div>
-    <div class="toprightrole">
-        {% for role in user.roles %}
-            {{ role }},
-        {% endfor %}
-    </div>
+    <div class="logout_web">
         <ul>
             {% if config.get("ENDPOINT") %}
               <li><a href='/call_downstream_api'>Call a downstream API</a></li>
@@ -48,10 +36,13 @@
         
             <li><a href="/logout">Logout</a></li>
             </ul>
+    </div>
+
+    {% if rows|length > 0 %}
     <table>
         <thead>
             <tr>
-                {% for column in columns %}
+                {% for column in columns[1:] %}
                 <th>{{ column }}</th>
                 {% endfor %}
             </tr>
@@ -59,13 +50,19 @@
         <tbody>
             {% for row in rows %}
             <tr>
-                {% for cell in row %}
+                {% for cell in row[1:-1] %}
                 <td>{{ cell }}</td>
                 {% endfor %}
+                <td>{{ row[-1] }} €</td>
             </tr>
             {% endfor %}
+            
+            <tr><td>Total:</td><td>{{ entree }}</td><td>{{ plat }}</td><td>{{ dessert }}</td><td>{{ total_all }} €</td></tr>
         </tbody>
     </table>
+    {% else %}
+    <p>No elements yet</p>
+    {% endif %}
         
 
 </body>
