@@ -1,0 +1,44 @@
+services:
+    mysqldb:
+        image: mysql:latest
+        container_name: mysqldb
+        volumes:
+            - mysql-data:/var/lib/mysql
+        networks:
+            - securesnack
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: securesnack
+            MYSQL_USER: securesnack
+            MYSQL_PASSWORD: securesnack
+    flaskapp:
+        container_name: flaskapp
+        build: .
+        ports:
+            - "8080:5000"
+        networks:
+            - securesnack
+        depends_on:
+            - mysqldb
+        environment:
+            - DB_URL=mysql://securesnack:securesnack@mysqldb:3306/securesnack
+    migrations:
+        container_name: migrations
+        build: .
+        command: ["./wait-for-it.sh", "mysqldb:3306", "--", "./migrate.sh"]
+        profiles: ["setup"]
+        networks:
+            - securesnack
+        depends_on:
+            - mysqldb
+        environment:
+            - DB_URL=mysql://securesnack:securesnack@mysqldb:3306/securesnack
+
+networks:
+    securesnack:
+        driver: bridge
+        name: securesnack-network
+
+volumes:
+    mysql-data:
+        name: mysql-data-volumes

@@ -5,15 +5,18 @@ import app_config
 from flask_session import Session
 from services.scim import scim_router
 from services.menu import menu_router
+from app_config import DB_URL
+
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(app_config)
     Session(app)
-    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:g@localhost:3306/scim"
+    app.config["SQLALCHEMY_DATABASE_URI"] = DB_URL
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
     return app
+
 
 app = create_app()
 app.register_blueprint(auth_router)
