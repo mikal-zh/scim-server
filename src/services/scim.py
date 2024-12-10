@@ -200,30 +200,7 @@ def get_users():
         filter_parts = request.args["filter"].split(" ")
         if len(filter_parts) == 3 and filter_parts[0] == "userName" and filter_parts[1] == "eq":
             filter_value = filter_parts[2].strip('"').lower()
-            users = User.query.filter(func.lower(User.userName) == filter_value).all()
-            if not users:
-                print("no user")
-                return make_response(
-                    jsonify({
-                        "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
-                        "detail": "No user found matching the filter criteria.",
-                        "status": 404
-                    }),
-                    404
-                )
-            
-            if len(users) > 1:
-                print("same user")
-                return make_response(
-                    jsonify({
-                        "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
-                        "scimType": "tooMany",
-                        "detail": f"Multiple users found matching the filter {filter_value}",
-                        "status": 400
-                    }),
-                    400
-                )
-            
+            users = User.query.filter(func.lower(User.userName) == filter_value).all()            
             total_results = len(users)
         else:
             users = []
