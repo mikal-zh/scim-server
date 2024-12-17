@@ -52,132 +52,47 @@ def get_schemas():
         {
             "id": "urn:ietf:params:scim:schemas:core:2.0:User",
             "name": "User",
-            "description": "Core schema for representing users.",
+            "description": "Core User schema",
             "attributes": [
-                {
-                    "name": "userName",
-                    "type": "string",
-                    "multiValued": False,
-                    "description": "Unique identifier for the user, typically used for authentication.",
-                    "required": True,
-                    "caseExact": False,
-                    "mutability": "readWrite",
-                    "returned": "always",
-                    "uniqueness": "server"
-                },
-                {
-                    "name": "id",
-                    "type": "string",
-                    "multiValued": False,
-                    "description": "Unique identifier for the user resource.",
-                    "required": True,
-                    "caseExact": False,
-                    "mutability": "readOnly",
-                    "returned": "always",
-                    "uniqueness": "server"
-                },
-                {
-                    "name": "active",
-                    "type": "boolean",
-                    "multiValued": False,
-                    "description": "A Boolean value indicating the user's active state.",
-                    "required": False,
-                    "mutability": "readWrite",
-                    "returned": "default",
-                    "uniqueness": "none"
-                },
-                {
-                    "name": "name",
-                    "type": "complex",
-                    "multiValued": False,
-                    "description": "Name for the user.",
-                    "required": False,
-                    "subAttributes": [
-                        {
-                            "name": "formatted",
-                            "type": "string",
-                            "multiValued": False,
-                            "description": "name value.",
-                            "required": False,
-                            "caseExact": False,
-                            "mutability": "readWrite",
-                            "returned": "default",
-                            "uniqueness": "none"
-                        },
-                        {
-                            "name": "familyName",
-                            "type": "string",
-                            "multiValued": False,
-                            "description": ".",
-                            "required": False,
-                            "caseExact": False,
-                            "mutability": "readWrite",
-                            "returned": "default",
-                            "uniqueness": "none"
-                        },
-                        {
-                            "name": "givenName",
-                            "type": "string",
-                            "multiValued": False,
-                            "description": ".",
-                            "required": False,
-                            "caseExact": False,
-                            "mutability": "readWrite",
-                            "returned": "default",
-                            "uniqueness": "none"
-                        }
-                    ],
-                    "mutability": "readWrite",
-                    "returned": "default",
-                    "uniqueness": "none"
-                },
-                {
-                    "name": "meta",
-                    "type": "complex",
-                    "multiValued": False,
-                    "description": "Metadata about the resource.",
-                    "required": False,
-                    "subAttributes": [
-                        {
-                            "name": "created",
-                            "type": "dateTime",
-                            "multiValued": False,
-                            "description": "The date the resource was created.",
-                            "required": False,
-                            "mutability": "readOnly",
-                            "returned": "default",
-                            "uniqueness": "none"
-                        },
-                        {
-                            "name": "lastModified",
-                            "type": "dateTime",
-                            "multiValued": False,
-                            "description": "The date the resource was last modified.",
-                            "required": False,
-                            "mutability": "readOnly",
-                            "returned": "default",
-                            "uniqueness": "none"
-                        },
-                        {
-                            "name": "resourceType",
-                            "type": "string",
-                            "multiValued": False,
-                            "description": "The type of SCIM resource.",
-                            "required": False,
-                            "mutability": "readOnly",
-                            "returned": "default",
-                            "uniqueness": "none"
-                        }
-                    ],
-                    "mutability": "readOnly",
-                    "returned": "default",
-                    "uniqueness": "none"
-                }
-            ],
-            "meta": {
-                "resourceType": "Schema",
-                "location": "/scim/v2/Schemas/urn:ietf:params:scim:schemas:core:2.0:User"
-            }
+                {"name": "id", "type": "string", "multiValued": False, "required": True, "mutability": "readOnly"},
+                {"name": "userName", "type": "string", "multiValued": False, "required": True, "mutability": "readWrite"},
+                {"name": "name", "type": "complex", "multiValued": False, "required": False, "mutability": "readWrite", "subAttributes": [
+                    {"name": "givenName", "type": "string", "multiValued": False, "mutability": "readWrite"},
+                    {"name": "middleName", "type": "string", "multiValued": False, "mutability": "readWrite"},
+                    {"name": "familyName", "type": "string", "multiValued": False, "mutability": "readWrite"}
+                ]},
+                {"name": "displayName", "type": "string", "multiValued": False, "mutability": "readWrite"},
+                {"name": "locale", "type": "string", "multiValued": False, "mutability": "readWrite"},
+                {"name": "externalId", "type": "string", "multiValued": False, "mutability": "readWrite"},
+                {"name": "active", "type": "boolean", "multiValued": False, "mutability": "readWrite"},
+                {"name": "groups", "type": "complex", "multiValued": True, "mutability": "readOnly", "subAttributes": [
+                    {"name": "display", "type": "string", "multiValued": False, "mutability": "readOnly"},
+                    {"name": "value", "type": "string", "multiValued": False, "mutability": "readOnly"}
+                ]},
+                {"name": "meta", "type": "complex", "multiValued": False, "mutability": "readOnly", "subAttributes": [
+                    {"name": "resourceType", "type": "string", "multiValued": False, "mutability": "readOnly"},
+                    {"name": "created", "type": "string", "multiValued": False, "mutability": "readOnly"},
+                    {"name": "lastModified", "type": "string", "multiValued": False, "mutability": "readOnly"}
+                ]}
+            ]
+        },
+        {
+            "id": "urn:ietf:params:scim:schemas:core:2.0:Group",
+            "name": "Group",
+            "description": "Core Group schema",
+            "attributes": [
+                {"name": "id", "type": "string", "multiValued": False, "required": True, "mutability": "readOnly"},
+                {"name": "displayName", "type": "string", "multiValued": False, "required": True, "mutability": "readWrite"},
+                {"name": "members", "type": "complex", "multiValued": True, "mutability": "readWrite", "subAttributes": [
+                    {"name": "value", "type": "string", "multiValued": False, "mutability": "readWrite"},
+                    {"name": "display", "type": "string", "multiValued": False, "mutability": "readWrite"}
+                ]},
+                {"name": "meta", "type": "complex", "multiValued": False, "mutability": "readOnly", "subAttributes": [
+                    {"name": "resourceType", "type": "string", "multiValued": False, "mutability": "readOnly"},
+                    {"name": "created", "type": "string", "multiValued": False, "mutability": "readOnly"},
+                    {"name": "lastModified", "type": "string", "multiValued": False, "mutability": "readOnly"}
+                ]}
+            ]
         }
     ]
 
