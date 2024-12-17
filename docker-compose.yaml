@@ -21,7 +21,11 @@ services:
         depends_on:
             - mysqldb
         environment:
-            - DB_URL=mysql://securesnack:securesnack@mysqldb:3306/securesnack
+            DB_URL: mysql://securesnack:securesnack@mysqldb:3306/securesnack
+            CLIENT_ID: your-client-id
+            CLIENT_SECRET: your-client-secret
+            AUTHORITY: your-authority-url
+            SCIM_SECRET: your-scim-secret
     migrations:
         container_name: migrations
         build: .
@@ -32,7 +36,7 @@ services:
         depends_on:
             - mysqldb
         environment:
-            - DB_URL=mysql://securesnack:securesnack@mysqldb:3306/securesnack
+            DB_URL: mysql://securesnack:securesnack@mysqldb:3306/securesnack
 
 networks:
     securesnack:

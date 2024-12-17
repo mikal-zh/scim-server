@@ -5,7 +5,7 @@ import app_config
 from flask_session import Session
 from services.scim import scim_router
 from services.menu import menu_router
-from app_config import DB_URL
+from app_config import DB_URL, PORT
 
 def create_app():
     app = Flask(__name__)
@@ -23,4 +23,4 @@ app.register_blueprint(scim_router)
 app.register_blueprint(menu_router)
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0")
+    app.run(debug=True, host="0.0.0.0", port=PORT)
