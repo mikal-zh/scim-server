@@ -17,7 +17,7 @@ auth = identity.web.Auth(
 @auth_router.route("/login")
 def login():
     return render_template("login.html", **auth.log_in(
-        redirect_uri= url_for(".auth_response", _external=True)
+        redirect_uri= url_for(".auth_response", _external=True, _scheme='https')
     ))
 
 @auth_router.route(app_config.REDIRECT_PATH)

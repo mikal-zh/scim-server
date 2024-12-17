@@ -42,20 +42,33 @@ function handleSubmit(event) {
             Dessert: results.dessert,
             Total: results.total,
         })
-    }).then((response) => console.log("reponse", response))
+    }).then((response) => 
+        {
+            if (response.ok) {
+                Toastify({
+                    text: "Votre commande a été validée",
+                    duration: 3000,
+                    destination: "commande",
+                    gravity: "bottom", // `top` or `bottom`
+                    position: "right", // `left`, `center` or `right`
+                    stopOnFocus: true, // Prevents dismissing of toast on hover
+                    backgroundColor: "green",
+                }).showToast();
+            } else {
+                Toastify({
+                    text: "Erreur lors de la validation de votre commande",
+                    duration: 3000,
+                    destination: "commande",
+                    gravity: "bottom", // `top` or `bottom`
+                    position: "right", // `left`, `center` or `right`
+                    stopOnFocus: true, // Prevents dismissing of toast on hover
+                    backgroundColor: "red",
+                }).showToast();
+            }
+        }
+    )
     // Reset the form
     event.target.reset();
-
-    Toastify({
-        text: "Votre commande a été validée",
-        duration: 3000,
-        destination: "commande",
-        gravity: "bottom", // `top` or `bottom`
-        position: "right", // `left`, `center` or `right`
-        stopOnFocus: true, // Prevents dismissing of toast on hover
-        backgroundColor: "green",
-      }).showToast();
-
     // prevent from submitting the form
     return false
 }

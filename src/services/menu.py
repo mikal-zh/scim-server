@@ -1,8 +1,7 @@
-from flask import Blueprint, render_template, Flask
+from flask import Blueprint, render_template
 from flask import jsonify, make_response, request, redirect, url_for
 from services.database import db
 from models.models import Menu
-import mysql.connector
 from services.authentification import auth
 from models.models import User
 from sqlalchemy import func
@@ -17,25 +16,20 @@ def commande():
     username = user["preferred_username"]
     user = User.query.filter(func.lower(User.userName) == username).first()
 
-    conn = mysql.connector.connect()
-    cursor = conn.cursor()
-
-    query = "SELECT * FROM Menu where user_id = %s;"# where username = \"user1\";"
-    cursor.execute(query, (user.id,))
-
-    columns = [desc[0] for desc in cursor.description]
-    rows = cursor.fetchall()
-    cursor.close()
-    conn.close()
+    results:list[Menu] = Menu.query.filter(Menu.user_id == user.id).all()
+    
     entree = 0
     plat = 0
     dessert = 0
     total_all = 0
-    for total_nb in rows:
-        entree = entree + total_nb[2]
-        plat = plat + total_nb[3]
-        dessert = dessert + total_nb[4]
-        total_all = total_all + total_nb[5]
+    for menu in results:
+        entree = entree + menu.Entree
+        plat = plat + menu.Plat
+        dessert = dessert + menu.Dessert
+        total_all = total_all + menu.Total
+
+    columns = ["id", "Entree", "Plat", "Dessert", "Total"]
+    rows = [[menu.id, menu.Entree, menu.Plat, menu.Dessert, menu.Total] for menu in results]
 
     # print(entree, plat, dessert, total_all)
     return render_template("commande.html", columns=columns, rows=rows, user=user, entree=entree, plat=plat, dessert=dessert, total_all=total_all)
