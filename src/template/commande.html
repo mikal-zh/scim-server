@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,23 +26,20 @@
         </header>
     </div>
     <div class="toprightuser">
-        {{user.name}}
+        {{user.name_givenName}} {{user.name_familyName}}
     </div>
     <div class="logout_web">
         <ul>
-            {% if config.get("ENDPOINT") %}
-              <li><a href='/call_downstream_api'>Call a downstream API</a></li>
-            {% endif %}
-        
-            <li><a href="/logout">Logout</a></li>
-            </ul>
+            <a href="/logout">Logout</a>
+        </ul>
     </div>
 
     {% if rows|length > 0 %}
     <table>
         <thead>
             <tr>
-                {% for column in columns[1:] %}
+                <th>Numéro</th>
+                {% for column in columns[2:] %}
                 <th>{{ column }}</th>
                 {% endfor %}
             </tr>
@@ -50,7 +47,8 @@
         <tbody>
             {% for row in rows %}
             <tr>
-                {% for cell in row[1:-1] %}
+                <td>Commande {{ row[0] }}</td>
+                {% for cell in row[2:-1] %}
                 <td>{{ cell }}</td>
                 {% endfor %}
                 <td>{{ row[-1] }} €</td>

@@ -2,12 +2,9 @@ from flask import Blueprint
 from flask import request, redirect, render_template, session, url_for
 import app_config
 import identity.web
-import requests
 from app_config import AUTHORITY, CLIENT_ID, CLIENT_SECRET
 
 auth_router = Blueprint('auth', __name__, template_folder="../template/")
-
-# print("env var", AUTHORITY, CLIENT_ID)n
 
 auth = identity.web.Auth(
     session=session,
@@ -20,8 +17,7 @@ auth = identity.web.Auth(
 @auth_router.route("/login")
 def login():
     return render_template("login.html", **auth.log_in(
-        scopes=app_config.SCOPE, # Have user consent to scopes during log-in
-        redirect_uri= "https://securesnack.ariovis.fr/auth/redirect", #url_for(".auth_response", _external=True)
+        redirect_uri= url_for(".auth_response", _external=True)
     ))
 
 @auth_router.route(app_config.REDIRECT_PATH)
@@ -41,16 +37,3 @@ def index():
     if not user:
         return redirect(url_for("auth.login"))
     return render_template("index.html", user=user)
-
-@auth_router.route("/call_downstream_api")
-def call_downstream_api():
-    token = auth.get_token_for_user(app_config.SCOPE)
-    if "error" in token:
-        return redirect(url_for(".login"))
-    # Use access token to call downstream api
-    api_result = requests.get(
-        app_config.ENDPOINT,
-        headers={'Authorization': 'Bearer ' + token['access_token']},
-        timeout=30,
-    ).json()
-    return render_template('display.html', result=api_result)

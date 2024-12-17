@@ -5,32 +5,23 @@ from models.models import Menu
 import mysql.connector
 from services.authentification import auth
 from models.models import User
+from sqlalchemy import func
 
 menu_router = Blueprint('menu', __name__,)
-
-config = {
-    'user': 'admin_secure',
-    'password': 'g',
-    'host': '0.0.0.0',
-    'database': 'scim'
-}
-
-# @menu_router.route("/home")
-# def home():
-#     return render_template("home.html")
 
 @menu_router.route('/commande', methods=["GET"])
 def commande():
     user = auth.get_user()
-    username = user["name"]
     if not user:
         return redirect(url_for("auth.login"))
+    username = user["preferred_username"]
+    user = User.query.filter(func.lower(User.userName) == username).first()
 
-    conn = mysql.connector.connect(**config)
+    conn = mysql.connector.connect()
     cursor = conn.cursor()
 
-    query = "SELECT * FROM Menu where username = %s;"# where username = \"user1\";"
-    cursor.execute(query, (username,))
+    query = "SELECT * FROM Menu where user_id = %s;"# where username = \"user1\";"
+    cursor.execute(query, (user.id,))
 
     columns = [desc[0] for desc in cursor.description]
     rows = cursor.fetchall()
@@ -54,41 +45,23 @@ def create_menu():
     user = auth.get_user()
     if not user:
         return redirect(url_for("auth.login"))
-    username = user["name"] #scim User.query.filter_by(userName=user["email"]).first().name_givenName
+    
+    username = user["preferred_username"]
+    user = User.query.filter(func.lower(User.userName) == username).first()
+
     Entree = request.json.get("Entree")
     Plat = request.json.get("Plat")
     Dessert = request.json.get("Dessert")
     Total = request.json.get("Total")
 
-    try:
-        menu = Menu(
-            Entree = Entree,
-            Plat = Plat,
-            Dessert = Dessert,
-            username = username,
-            Total = Total,
-        )
-        db.session.add(menu)
-        db.session.commit()
-        serialized_menu = menu.serialize()
-        return make_response(jsonify(serialized_menu), 201)
-    
-    except Exception as e:
-        return make_response(
-            jsonify(
-                {
-                    "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
-                    "detail": "Creation of user failed" + str(e),
-                    "status": 400,
-                }
-            ),
-            400,
-        )
-
-# @menu_router.route('/menu', method="GET")
-# def menu_page():
-#     user = auth.get_user()
-#     if not user:
-#         # redirect to login
-#     else:
-#         # show menu page
+    menu = Menu(
+        user_id = user.id,
+        Entree = Entree,
+        Plat = Plat,
+        Dessert = Dessert,
+        Total = Total,
+    )
+    db.session.add(menu)
+    db.session.commit()
+    serialized_menu = menu.serialize()
+    return make_response(jsonify(serialized_menu), 201)

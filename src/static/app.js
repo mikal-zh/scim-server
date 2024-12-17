@@ -46,6 +46,16 @@ function handleSubmit(event) {
     // Reset the form
     event.target.reset();
 
+    Toastify({
+        text: "Votre commande a été validée",
+        duration: 3000,
+        destination: "commande",
+        gravity: "bottom", // `top` or `bottom`
+        position: "right", // `left`, `center` or `right`
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+        backgroundColor: "green",
+      }).showToast();
+
     // prevent from submitting the form
     return false
 }

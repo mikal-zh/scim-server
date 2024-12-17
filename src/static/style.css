@@ -242,3 +242,13 @@ th {
 tr:nth-child(even) {
     background-color: #f9f9f9;
 }
+
+
+.logout_web a {
+    color: black;
+}
+
+.logout_web a:hover
+ {
+    color: white;
+}

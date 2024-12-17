@@ -5,6 +5,7 @@ from services.database import db
 from models.models import User, Group, Menu
 import re
 from sqlalchemy import func
+from app_config import SCIM_SECRET
 
 scim_router = Blueprint('scim', __name__, template_folder='templates')
 
@@ -13,7 +14,7 @@ def auth_required(func):
     @wraps(func)
     def check_auth(*args, **kwargs):
         try:
-            if request.headers["Authorization"].split("Bearer ")[1] != "123456789":
+            if request.headers["Authorization"].split("Bearer ")[1] != SCIM_SECRET:
                 return make_response(jsonify({
                     "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
                     "status": "403",
@@ -200,7 +201,7 @@ def get_users():
         filter_parts = request.args["filter"].split(" ")
         if len(filter_parts) == 3 and filter_parts[0] == "userName" and filter_parts[1] == "eq":
             filter_value = filter_parts[2].strip('"').lower()
-            users = User.query.filter(func.lower(User.userName) == filter_value).all()            
+            users = User.query.filter(func.lower(User.userName) == filter_value).all()
             total_results = len(users)
         else:
             users = []
@@ -252,7 +253,6 @@ def create_user():
     givenName = request.json.get("name", {}).get("givenName")
     middleName = request.json.get("name", {}).get("middleName")
     familyName = request.json.get("name", {}).get("familyName")
-    password = request.json.get("password")
     userName = request.json.get("userName")
 
     existing_user = User.query.filter_by(userName=userName).first()
@@ -278,7 +278,6 @@ def create_user():
                 givenName=givenName,
                 middleName=middleName,
                 familyName=familyName,
-                password=password,
                 userName=userName,
             )
             db.session.add(user)
@@ -414,9 +413,6 @@ def delete_user(user_id):
     user = User.query.get(user_id)
     db.session.delete(user)
     db.session.commit()
-    # scim username  = User.query.filter_by(userName=user["email"]).first().name_givenName
-    # db.session.delete(menu)
-    #db.session.commit()
     
     return make_response("", 204)
 
@@ -649,4 +645,3 @@ def delete_group(group_id):
     db.session.delete(group)
     db.session.commit()
     return "", 204
-

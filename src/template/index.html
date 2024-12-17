@@ -1,8 +1,10 @@
-<html lang="fr"><head>
+<html lang="en"><head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Menu</title>
   <link rel="stylesheet" href="../static/style.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
 </head>
   <body style="background-color:white;">
 
@@ -27,14 +29,10 @@
       </div>
       <div class="logout_web">
         <ul>
-          {% if config.get("ENDPOINT") %}
-            <li><a href='/call_downstream_api'>Call a downstream API</a></li>
-          {% endif %}
-      
-          <li><a href="/logout">Logout</a></li>
-          </ul>
-      </div>
-          
+            <a href="/logout">Logout</a>
+        </ul>
+    </div>
+
           <form onsubmit="return handleSubmit(event)" id="myForm">
           <div class="menu-cantine">
               <div class="menu-section">
@@ -164,6 +162,6 @@
           </form>
 
       <script src="static/app.js"></script>
-
+      <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
   </body>
 </html>

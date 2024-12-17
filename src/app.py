@@ -7,7 +7,6 @@ from services.scim import scim_router
 from services.menu import menu_router
 from app_config import DB_URL
 
-
 def create_app():
     app = Flask(__name__)
     app.config.from_object(app_config)
@@ -16,7 +15,6 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
     return app
-
 
 app = create_app()
 app.register_blueprint(auth_router)

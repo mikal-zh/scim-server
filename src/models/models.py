@@ -1,5 +1,7 @@
 import uuid
 from services.database import db
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 
 # Define a many-to-many relationship
 links = db.Table(
@@ -17,7 +19,7 @@ class User(db.Model):
 
     id = db.Column(db.String(128), primary_key=True, default=uuid.uuid4)
     active = db.Column(db.Boolean)
-    userName = db.Column(db.String(128))
+    userName = db.Column(db.String(128), nullable=False, unique=True)
     name_givenName = db.Column(db.String(64))
     name_middleName = db.Column(db.String(64))
     name_familyName = db.Column(db.String(64))
@@ -30,7 +32,7 @@ class User(db.Model):
     displayName = db.Column(db.String(64))
     locale = db.Column(db.String(64))
     externalId = db.Column(db.String(64))
-    password = db.Column(db.String(64))
+    menu = relationship('Menu', backref='user')
 
     def __init__(
         self,
@@ -42,7 +44,6 @@ class User(db.Model):
         displayName,
         locale,
         externalId,
-        password,
     ):
         self.active = active
         self.userName = userName
@@ -52,7 +53,6 @@ class User(db.Model):
         self.displayName = displayName
         self.locale = locale
         self.externalId = externalId
-        self.password = password
 
     def __repr__(self):
         return "<id {}>".format(self.id)
@@ -114,7 +114,7 @@ class Menu(db.Model):
     __tablename__ = "Menu"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(128))
+    user_id = db.Column(db.String(128), ForeignKey('users.id'), nullable=False)
     Entree = db.Column(db.Integer)
     Plat = db.Column(db.Integer)
     Dessert = db.Column(db.Integer)
@@ -122,13 +122,13 @@ class Menu(db.Model):
 
     def __init__(
         self,
-        username,
+        user_id,
         Entree,
         Plat,
         Dessert,
         Total,
     ):
-        self.username = username
+        self.user_id = user_id
         self.Entree = Entree
         self.Plat = Plat
         self.Dessert = Dessert
@@ -136,11 +136,8 @@ class Menu(db.Model):
 
     def serialize(self):
         return {
-            "schemas": [
-                "urn:ietf:params:scim:schemas:core:2.0:Menu",
-            ],
             "id": self.id,
-            "userName": self.username,
+            "user_id": self.user_id,
             "Entree": self.Entree,
             "Plat": self.Plat,
             "Dessert": self.Dessert,
