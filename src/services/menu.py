@@ -13,7 +13,7 @@ def commande():
     user = idt.get_user_info(session["token"])
     if not user:
         return redirect(url_for("auth.login"))
-    username = user["preferred_username"]
+    username = user.get("preferred_username") or user.get("username") or user.get("email")
     user = User.query.filter(func.lower(User.userName) == username).first()
 
     results:list[Menu] = Menu.query.filter(Menu.user_id == user.id).all()
@@ -40,7 +40,7 @@ def create_menu():
     if not user:
         return redirect(url_for("auth.login"))
     
-    username = user["preferred_username"]
+    username = user.get("preferred_username") or user.get("username") or user.get("email")
     user = User.query.filter(func.lower(User.userName) == username).first()
 
     Entree = request.json.get("Entree")
