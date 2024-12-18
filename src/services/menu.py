@@ -1,16 +1,16 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, session
 from flask import jsonify, make_response, request, redirect, url_for
 from services.database import db
 from models.models import Menu
-from services.authentification import auth
 from models.models import User
 from sqlalchemy import func
+import services.identity as idt
 
 menu_router = Blueprint('menu', __name__,)
 
 @menu_router.route('/commande', methods=["GET"])
 def commande():
-    user = auth.get_user()
+    user = idt.get_user_info(session["token"])
     if not user:
         return redirect(url_for("auth.login"))
     username = user["preferred_username"]
@@ -36,7 +36,7 @@ def commande():
 
 @menu_router.route("/menu", methods=["POST"])
 def create_menu():
-    user = auth.get_user()
+    user = idt.get_user_info(session["token"])
     if not user:
         return redirect(url_for("auth.login"))
     

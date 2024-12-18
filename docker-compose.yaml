@@ -26,6 +26,7 @@ services:
             CLIENT_SECRET: your-client-secret
             AUTHORITY: your-authority-url
             SCIM_SECRET: your-scim-secret
+            REDIRECT_URI: your-url-redirect/auth/redirect
     migrations:
         container_name: migrations
         build: .
