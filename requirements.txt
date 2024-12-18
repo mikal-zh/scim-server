@@ -21,3 +21,4 @@ mysqlclient==2.2.6
 python-dotenv==1.0.1
 Flask-Session==0.4.1
 mysql-connector-python==9.1.0
+oic==1.7.0
