@@ -1,5 +1,6 @@
 from oic.oic import Client
 from oic.oic.message import AuthorizationResponse
+from oic.oauth2.exception import GrantError
 from oic.oic import Grant
 from oic import rndstr
 from oic.utils.authn.client import CLIENT_AUTHN_METHOD
@@ -58,11 +59,13 @@ def get_token(code, state):
 
     session["token"] = token_request["access_token"]
     session["id_token"] = token_request["id_token"]
-    print(token_request["id_token"])
 
     return session["token"]
 
-def get_user_info(token):
+def get_user_info(token=None):
+    token = token or session.get("token")
+    if not token:
+        return None
     try:
         user = session.get("id_token")
         if not user:
@@ -70,9 +73,19 @@ def get_user_info(token):
         else:
             user.update(client.do_user_info_request(state=session["state"], token=token))
             return user
-    except Exception as e:
-        print(e)
+    except Exception:
         return None
     
-def log_out(redirect_uri):
-    return client.do_end_session_request(state=session["state"], post_logout_redirect_uri=redirect_uri)
+def log_out(redirection_uri=None):
+    try:
+        req_logout = client.construct_EndSessionRequest(
+            request_args={
+                "state": session["state"],
+                "post_logout_redirect_uri": redirection_uri or REDIRECT_URI
+            }
+        )
+
+        return req_logout.request(client.end_session_endpoint)
+    except GrantError:
+        session.clear()
+        return None

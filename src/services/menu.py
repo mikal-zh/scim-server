@@ -10,7 +10,7 @@ menu_router = Blueprint('menu', __name__,)
 
 @menu_router.route('/commande', methods=["GET"])
 def commande():
-    user = idt.get_user_info(session["token"])
+    user = idt.get_user_info()
     if not user:
         return redirect(url_for("auth.login"))
     username = user.get("preferred_username") or user.get("username") or user.get("email")
@@ -36,7 +36,7 @@ def commande():
 
 @menu_router.route("/menu", methods=["POST"])
 def create_menu():
-    user = idt.get_user_info(session["token"])
+    user = idt.get_user_info()
     if not user:
         return redirect(url_for("auth.login"))
     
