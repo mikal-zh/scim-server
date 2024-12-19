@@ -161,6 +161,8 @@ def get_user(user_id):
 def create_user():
     """Create SCIM User"""
     active = request.json.get("active") or True
+    if isinstance(active, str):
+        active = active.lower() == "true"
     displayName = request.json.get("displayName")
     externalId = request.json.get("externalId")
     groups = request.json.get("groups", [])
@@ -276,6 +278,8 @@ def update_user(user_id):
                             attr = format_attr(attr)
                             # remove point in attribute name and add a maj to next letter
                             if hasattr(user, attr):
+                                if isinstance(getattr(user, attr), bool):
+                                    attr_value = attr_value.lower() == "true" if isinstance(attr_value, str) else bool(attr_value)
                                 setattr(user, attr, attr_value)
                             else:
                                 raise AttributeError
@@ -286,6 +290,8 @@ def update_user(user_id):
 
                     if op == "replace" or op == "add":
                         if hasattr(user, attribute):
+                            if isinstance(getattr(user, attribute), bool):
+                                value = value.lower() == "true" if isinstance(value, str) else bool(value)
                             setattr(user, attribute, value)
                         else:
                             raise AttributeError
